@@ -538,7 +538,7 @@ CREATE TABLE `dv_job_execution` (
   `error_data_storage_parameter` text COMMENT '错误数据存储参数',
   `error_data_file_name` varchar(255) DEFAULT NULL COMMENT '错误数据存储文件名',
   `parameter` longtext NOT NULL COMMENT '作业运行参数',
-  `status` int(11) DEFAULT NULL COMMENT '运行平台参数',
+  `status` int(11) DEFAULT NULL COMMENT '作业运行状态',
   `retry_times` int(11) DEFAULT NULL COMMENT '重试次数',
   `retry_interval` int(11) DEFAULT NULL COMMENT '重试间隔',
   `timeout` int(11) DEFAULT NULL COMMENT '超时时间',
@@ -582,7 +582,7 @@ CREATE TABLE `dv_job_execution_result` (
   `result_formula` varchar(255) DEFAULT NULL COMMENT '计算结果公式',
   `operator` varchar(255) DEFAULT NULL COMMENT '比较符',
   `threshold` double DEFAULT NULL COMMENT '阈值',
-  `state` int(2) NOT NULL DEFAULT '0' COMMENT '结果 success/fail',
+  `state` int(2) NOT NULL DEFAULT '0' COMMENT '结果 1:success/2:fail',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
@@ -810,8 +810,8 @@ INSERT INTO `dv_config` VALUES ('8', '-1', 'reserved.memory', '0.3f', '1', '1', 
 INSERT INTO `dv_config` VALUES ('9', '-1', 'file.max.length', '10000000', '1', '1', '2023-09-03 14:57:33', '1', '2023-09-03 14:57:33');
 INSERT INTO `dv_config` VALUES ('10', '-1', 'error.data.dir', '/tmp/datavines/error-data', '1', '1', '2023-09-03 14:58:01', '1', '2023-09-03 14:58:01');
 INSERT INTO `dv_config` VALUES ('11', '-1', 'validate.result.data.dir', '/tmp/datavines/validate-result-data', '1', '1', '2023-09-03 14:58:29', '1', '2023-09-03 14:58:29');
-INSERT INTO `dv_config` VALUES ('12', '-1', 'local.execution.threshold', '100', '1', '1', '2023-09-03 15:02:38', '1', '2023-09-03 15:02:38');
-INSERT INTO `dv_config` VALUES ('13', '-1', 'spark.execution.threshold', '100', '1', '1', '2023-09-03 15:02:38', '1', '2023-09-03 15:02:38');
+INSERT INTO `dv_config` VALUES ('12', '-1', 'local.execution.threshold', '1000', '1', '1', '2023-09-03 15:02:38', '1', '2023-09-03 15:02:38');
+INSERT INTO `dv_config` VALUES ('13', '-1', 'spark.execution.threshold', '1000', '1', '1', '2023-09-03 15:02:38', '1', '2023-09-03 15:02:38');
 INSERT INTO `dv_config` VALUES ('14', '-1', 'livy.uri', 'http://localhost:8998/batches', '1', '1', '2023-09-05 21:02:38', '1', '2023-09-05 21:02:38');
 INSERT INTO `dv_config` VALUES ('15', '-1', 'livy.task.appId.retry.count', '3', '1', '1', '2023-09-05 21:02:38', '1', '2023-09-05 21:02:38');
 INSERT INTO `dv_config` VALUES ('16', '-1', 'livy.need.kerberos', 'false', '1', '1', '2023-09-05 21:02:38', '1', '2023-09-05 21:02:38');
@@ -819,7 +819,7 @@ INSERT INTO `dv_config` VALUES ('17', '-1', 'livy.server.auth.kerberos.principal
 INSERT INTO `dv_config` VALUES ('18', '-1', 'livy.server.auth.kerberos.keytab', '/path/to/livy/keytab/file', '1', '1', '2023-09-05 21:02:38', '1', '2023-09-05 21:02:38');
 INSERT INTO `dv_config` VALUES ('19', '-1', 'livy.task.proxyUser', 'root', '1', '1', '2023-09-05 21:02:38', '1', '2023-09-05 21:02:38');
 INSERT INTO `dv_config` VALUES ('20', '-1', 'livy.task.jar.lib.path', 'hdfs:///datavines/lib', '1', '1', '2023-09-05 21:02:38', '1', '2023-09-05 21:02:38');
-INSERT INTO `dv_config` VALUES ('21', '-1', 'livy.execution.threshold', '100', '1', '1', '2023-09-05 21:02:38', '1', '2023-09-05 21:02:38');
+INSERT INTO `dv_config` VALUES ('21', '-1', 'livy.execution.threshold', '1000', '1', '1', '2023-09-05 21:02:38', '1', '2023-09-05 21:02:38');
 INSERT INTO `dv_config` VALUES ('22', '-1', 'livy.task.jars', CONCAT('datavines-common-1.0.0-SNAPSHOT.jar,datavines-spi-1.0.0-SNAPSHOT.jar,'
                                                                     'datavines-engine-spark-api-1.0.0-SNAPSHOT.jar,datavines-engine-spark-connector-jdbc-1.0.0-SNAPSHOT.jar,'
                                                                     'datavines-engine-core-1.0.0-SNAPSHOT.jar,datavines-engine-common-1.0.0-SNAPSHOT.jar,datavines-engine-spark-transform-sql-1.0.0-SNAPSHOT.jar,'

@@ -104,7 +104,7 @@ public class MongodbConnector implements Connector {
     public ConnectorResponse getTables(GetTablesRequestParam param) throws SQLException {
         ConnectorResponse.ConnectorResponseBuilder builder = ConnectorResponse.builder();
         String dataSourceParam = param.getDataSourceParam();
-        String dataBase = param.getDataBase();
+        String dataBase = param.getDatabase();
 
         JdbcConnectionInfo jdbcConnectionInfo = JSONUtils.parseObject(dataSourceParam, JdbcConnectionInfo.class);
         if (jdbcConnectionInfo == null) {
@@ -149,7 +149,7 @@ public class MongodbConnector implements Connector {
             for (String key : doc.keySet()) {
 
                 Object value = doc.get(key);
-                if (!key.equals("_id")) {
+                if (!"_id".equals(key)) {
                     String fieldType = guessFieldType(value);
                     if (StringUtils.isNotEmpty(fieldType)) {
                         columnInfos.add(new ColumnInfo(key, fieldType));

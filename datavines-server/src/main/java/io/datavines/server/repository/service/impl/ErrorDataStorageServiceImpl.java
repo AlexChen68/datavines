@@ -104,7 +104,7 @@ public class ErrorDataStorageServiceImpl extends ServiceImpl<ErrorDataStorageMap
 
     @Override
     public List<ErrorDataStorage> listByWorkspaceId(long workspaceId) {
-        List<ErrorDataStorage> list = baseMapper.selectList(new QueryWrapper<ErrorDataStorage>().eq("workspace_id", workspaceId));
+        List<ErrorDataStorage> list = baseMapper.selectList(new QueryWrapper<ErrorDataStorage>().lambda().eq(ErrorDataStorage::getWorkspaceId, workspaceId));
         if (CollectionUtils.isNotEmpty(list)) {
             list.forEach(errorDataStorage -> {
                 errorDataStorage.setParam(PasswordFilterUtils.convertPasswordToNULL(PWD_PATTERN_1, errorDataStorage.getParam()));
@@ -137,11 +137,11 @@ public class ErrorDataStorageServiceImpl extends ServiceImpl<ErrorDataStorageMap
 
     @Override
     public String getConfigJson(String type) {
-        return PluginLoader.getPluginLoader(ConnectorFactory.class).getOrCreatePlugin(type).getConfigBuilder().build(!LanguageUtils.isZhContext());
+        return PluginLoader.getPluginLoader(ConnectorFactory.class).getOrCreatePlugin(type).getConfigBuilder().buildErrorDataStorage(!LanguageUtils.isZhContext());
     }
 
     private boolean isErrorDataStorageExist(String name) {
-        ErrorDataStorage user = baseMapper.selectOne(new QueryWrapper<ErrorDataStorage>().eq("name", name));
+        ErrorDataStorage user = baseMapper.selectOne(new QueryWrapper<ErrorDataStorage>().lambda().eq(ErrorDataStorage::getName, name));
         return user != null;
     }
 }

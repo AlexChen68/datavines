@@ -20,6 +20,10 @@ import io.datavines.common.datasource.jdbc.BaseJdbcDataSourceInfo;
 import io.datavines.common.datasource.jdbc.JdbcConnectionInfo;
 import io.datavines.connector.api.DataSourceClient;
 
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class ClickHouseConnector extends JdbcConnector {
 
     public ClickHouseConnector(DataSourceClient dataSourceClient) {
@@ -28,5 +32,15 @@ public class ClickHouseConnector extends JdbcConnector {
     @Override
     public BaseJdbcDataSourceInfo getDatasourceInfo(JdbcConnectionInfo jdbcConnectionInfo) {
         return new ClickHouseDataSourceInfo(jdbcConnectionInfo);
+    }
+
+    @Override
+    protected ResultSet getMetadataTables(DatabaseMetaData metaData, String catalog, String schema) throws SQLException {
+        return metaData.getTables(null, catalog, null, TABLE_TYPES);
+    }
+
+    @Override
+    protected ResultSet getMetadataColumns(DatabaseMetaData metaData, String catalog, String schema, String tableName, String columnName) throws SQLException {
+        return metaData.getColumns(null, catalog, tableName, columnName);
     }
 }

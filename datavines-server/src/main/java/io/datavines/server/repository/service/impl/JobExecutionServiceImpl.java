@@ -192,16 +192,16 @@ public class JobExecutionServiceImpl extends ServiceImpl<JobExecutionMapper, Job
 
     @Override
     public List<JobExecution> listNeedFailover(String host) {
-        return baseMapper.selectList(new QueryWrapper<JobExecution>()
-                .eq("execute_host", host)
-                .in("status", ExecutionStatus.RUNNING_EXECUTION.getCode(), ExecutionStatus.SUBMITTED_SUCCESS.getCode()));
+        return baseMapper.selectList(new QueryWrapper<JobExecution>().lambda()
+                .eq(JobExecution::getExecuteHost, host)
+                .in(JobExecution::getStatus, ExecutionStatus.RUNNING_EXECUTION.getCode(), ExecutionStatus.SUBMITTED_SUCCESS.getCode()));
     }
 
     @Override
     public List<JobExecution> listJobExecutionNotInServerList(List<String> hostList) {
-        return baseMapper.selectList(new QueryWrapper<JobExecution>()
-                .notIn("execute_host", hostList)
-                .in("status",ExecutionStatus.RUNNING_EXECUTION.getCode(), ExecutionStatus.SUBMITTED_SUCCESS.getCode()));
+        return baseMapper.selectList(new QueryWrapper<JobExecution>().lambda()
+                .notIn(JobExecution::getExecuteHost, hostList)
+                .in(JobExecution::getStatus,ExecutionStatus.RUNNING_EXECUTION.getCode(), ExecutionStatus.SUBMITTED_SUCCESS.getCode()));
     }
 
     private void checkJobExecutionParameter(JobExecutionParameter jobExecutionParameter, String engineType) throws DataVinesServerException {
@@ -342,25 +342,26 @@ public class JobExecutionServiceImpl extends ServiceImpl<JobExecutionMapper, Job
             return new ArrayList<>();
         }
         items = items.stream().filter(it -> statusList.contains(it.getName())).collect(Collectors.toList());
+        Set<String> resultStatusSet = items.stream().map(JobExecutionAggItem::getName).collect(Collectors.toSet());
 
+        for (String status : statusList) {
+            if (!resultStatusSet.contains(status)) {
+                JobExecutionAggItem item = new JobExecutionAggItem();
+                item.setName(status);
+                item.setValue(0);
+                items.add(item);
+            }
+        }
+        items = items.stream().sorted(Comparator.comparing(JobExecutionAggItem::getName)).collect(Collectors.toList());
         boolean isZh = LanguageUtils.isZhContext();
         for (JobExecutionAggItem jobExecutionAggItem : items) {
             switch (jobExecutionAggItem.getName()) {
-                case "1":
-                    if (isZh) {
-                        jobExecutionAggItem.setName("执行中");
-                    } else {
-                        jobExecutionAggItem.setName("Running");
-                    }
-
-                    break;
                 case "6":
                     if (isZh) {
                         jobExecutionAggItem.setName("执行失败");
                     } else {
                         jobExecutionAggItem.setName("Failure");
                     }
-
                     break;
                 case "7":
                     if (isZh) {
@@ -368,15 +369,6 @@ public class JobExecutionServiceImpl extends ServiceImpl<JobExecutionMapper, Job
                     } else {
                         jobExecutionAggItem.setName("Success");
                     }
-
-                    break;
-                case "9":
-                    if (isZh) {
-                        jobExecutionAggItem.setName("停止");
-                    } else {
-                        jobExecutionAggItem.setName("Kill");
-                    }
-
                     break;
                 default:
                     break;
@@ -488,6 +480,4 @@ public class JobExecutionServiceImpl extends ServiceImpl<JobExecutionMapper, Job
     public JobExecutionStat getJobExecutionStat(Long jobId) {
         return baseMapper.getJobExecutionStat(jobId);
     }
-
-
 }
